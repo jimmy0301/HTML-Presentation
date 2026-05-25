@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Presentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #0f0f0f;
+      color: #f0f0f0;
+      overflow: hidden;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 4rem;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .slide h1 { font-size: clamp(2rem, 6vw, 4rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; }
+    .slide h2 { font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 600; margin-bottom: 1rem; }
+    .slide p  { font-size: clamp(1rem, 2.5vw, 1.4rem); color: #ccc; max-width: 700px; line-height: 1.7; }
+    .slide ul { list-style: none; margin-top: 1rem; }
+    .slide ul li { font-size: clamp(1rem, 2.5vw, 1.3rem); color: #ccc; padding: 0.4rem 0; }
+    .slide ul li::before { content: "→ "; color: #7eb8f7; font-weight: bold; }
+
+    .tag {
+      display: inline-block;
+      background: #1e3a5f;
+      color: #7eb8f7;
+      border-radius: 4px;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+
+    /* slide-specific accents */
+    .slide-title { background: radial-gradient(ellipse at center, #1a2a4a 0%, #0f0f0f 70%); }
+    .slide-section { background: radial-gradient(ellipse at center, #1a3a2a 0%, #0f0f0f 70%); }
+
+    /* nav */
+    #nav {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      z-index: 100;
+    }
+
+    #nav button {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #f0f0f0;
+      padding: 0.5rem 1.4rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #nav button:hover { background: rgba(255,255,255,0.18); }
+    #nav button:disabled { opacity: 0.3; cursor: default; }
+
+    #counter { font-size: 0.85rem; color: #888; min-width: 4ch; text-align: center; }
+
+    /* progress bar */
+    #progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: #7eb8f7;
+      transition: width 0.4s ease;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Title -->
+  <section class="slide slide-title active">
+    <span class="tag">2026</span>
+    <h1>簡報標題</h1>
+    <p>副標題或一句話摘要寫在這裡</p>
+  </section>
+
+  <!-- Slide 2: Agenda -->
+  <section class="slide">
+    <h2>議程</h2>
+    <ul>
+      <li>背景與問題</li>
+      <li>解決方案</li>
+      <li>Demo</li>
+      <li>Next Steps</li>
+    </ul>
+  </section>
+
+  <!-- Slide 3: Section break -->
+  <section class="slide slide-section">
+    <span class="tag">Part 1</span>
+    <h1>背景與問題</h1>
+  </section>
+
+  <!-- Slide 4: Content -->
+  <section class="slide">
+    <h2>背景</h2>
+    <p>在此說明背景脈絡，保持文字精簡，每張投影片傳達一個核心訊息。</p>
+  </section>
+
+  <!-- Slide 5: Section break -->
+  <section class="slide slide-section">
+    <span class="tag">Part 2</span>
+    <h1>解決方案</h1>
+  </section>
+
+  <!-- Slide 6: Content -->
+  <section class="slide">
+    <h2>方案說明</h2>
+    <ul>
+      <li>要點一</li>
+      <li>要點二</li>
+      <li>要點三</li>
+    </ul>
+  </section>
+
+  <!-- Slide 7: Closing -->
+  <section class="slide slide-title">
+    <span class="tag">Thank You</span>
+    <h1>Q &amp; A</h1>
+    <p>歡迎提問</p>
+  </section>
+
+</div>
+
+<div id="nav">
+  <button id="prev" disabled>← Prev</button>
+  <span id="counter"></span>
+  <button id="next">Next →</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  let current = 0;
+
+  function go(n) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides[current].classList.add('active');
+    prev.disabled = current === 0;
+    next.disabled = current === slides.length - 1;
+    counter.textContent = `${current + 1} / ${slides.length}`;
+    progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+  }
+
+  prev.addEventListener('click', () => go(current - 1));
+  next.addEventListener('click', () => go(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    go(current - 1);
+  });
+
+  go(0);
+</script>
+</body>
+</html>
