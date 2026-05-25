@@ -3,22 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Presentation</title>
+  <title>LLM Wiki — Andrej Karpathy</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background: #0f0f0f;
-      color: #f0f0f0;
-      overflow: hidden;
+    :root {
+      --blue:      #4a9eff;
+      --blue-dim:  #1e3a5f;
+      --teal:      #3dd6ac;
+      --teal-dim:  #0e3028;
+      --amber:     #f6c860;
+      --amber-dim: #3a2a00;
+      --red:       #ff6b6b;
+      --red-dim:   #3a1010;
+      --purple:    #a78bfa;
+      --bg:        #0b0e17;
+      --surface:   #111827;
+      --surface2:  #1a2234;
+      --border:    rgba(255,255,255,0.08);
+      --text:      #e8eaf0;
+      --muted:     #8892a4;
     }
 
-    .deck {
-      width: 100vw;
+    body {
+      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
       height: 100vh;
-      position: relative;
     }
+
+    .deck { width: 100vw; height: 100vh; position: relative; }
 
     .slide {
       position: absolute;
@@ -27,137 +42,1104 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 4rem;
+      padding: 2.5rem 4rem 4.5rem;
       text-align: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.45s ease;
     }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide.left-align { text-align: left; align-items: flex-start; }
 
-    .slide.active {
-      opacity: 1;
-      pointer-events: auto;
+    .slide h1 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.8rem;
     }
-
-    .slide h1 { font-size: clamp(2rem, 6vw, 4rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; }
-    .slide h2 { font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 600; margin-bottom: 1rem; }
-    .slide p  { font-size: clamp(1rem, 2.5vw, 1.4rem); color: #ccc; max-width: 700px; line-height: 1.7; }
-    .slide ul { list-style: none; margin-top: 1rem; }
-    .slide ul li { font-size: clamp(1rem, 2.5vw, 1.3rem); color: #ccc; padding: 0.4rem 0; }
-    .slide ul li::before { content: "→ "; color: #7eb8f7; font-weight: bold; }
+    .slide h2 {
+      font-size: clamp(1.4rem, 3vw, 2.1rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.8rem;
+    }
+    .slide p {
+      font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+      color: var(--muted);
+      max-width: 780px;
+      line-height: 1.75;
+    }
+    .slide p strong { color: var(--text); }
 
     .tag {
-      display: inline-block;
-      background: #1e3a5f;
-      color: #7eb8f7;
-      border-radius: 4px;
-      padding: 0.2rem 0.8rem;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--blue-dim);
+      color: var(--blue);
+      border: 1px solid rgba(74,158,255,0.25);
+      border-radius: 999px;
+      padding: 0.3rem 1rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1rem;
     }
+    .tag.teal  { background: var(--teal-dim);  color: var(--teal);  border-color: rgba(61,214,172,0.25); }
+    .tag.amber { background: var(--amber-dim); color: var(--amber); border-color: rgba(246,200,96,0.25); }
+    .tag.red   { background: var(--red-dim);   color: var(--red);   border-color: rgba(255,107,107,0.25); }
 
-    /* slide-specific accents */
-    .slide-title { background: radial-gradient(ellipse at center, #1a2a4a 0%, #0f0f0f 70%); }
-    .slide-section { background: radial-gradient(ellipse at center, #1a3a2a 0%, #0f0f0f 70%); }
+    .divider {
+      width: 3rem; height: 3px;
+      background: linear-gradient(90deg, var(--blue), transparent);
+      border-radius: 2px;
+      margin: 0.8rem auto 1.2rem;
+    }
+    .left-align .divider { margin-left: 0; }
+
+    .highlight {
+      background: var(--surface2);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 8px 8px 0;
+      padding: 0.8rem 1.2rem;
+      text-align: left;
+      font-size: clamp(0.82rem, 1.6vw, 1rem);
+      color: var(--text);
+      line-height: 1.65;
+      max-width: 820px;
+      width: 100%;
+    }
+    .highlight.teal  { border-color: var(--teal); }
+    .highlight.amber { border-color: var(--amber); }
+    .highlight.red   { border-color: var(--red); }
+    .highlight strong { color: var(--blue); }
+    .highlight.teal  strong { color: var(--teal); }
+    .highlight.amber strong { color: var(--amber); }
+    .highlight.red   strong { color: var(--red); }
+
+    /* slide backgrounds */
+    .slide-cover {
+      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(30,58,95,0.55) 0%, transparent 70%), var(--bg);
+    }
+    .slide-teal {
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(14,48,40,0.65) 0%, transparent 70%), var(--bg);
+    }
+    .slide-amber {
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(58,42,0,0.55) 0%, transparent 70%), var(--bg);
+    }
+    .slide-red {
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(58,16,16,0.5) 0%, transparent 70%), var(--bg);
+    }
 
     /* nav */
     #nav {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      z-index: 100;
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 1rem; z-index: 100;
+      background: rgba(17,24,39,0.85); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 999px; padding: 0.35rem 0.6rem;
     }
-
     #nav button {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #f0f0f0;
-      padding: 0.5rem 1.4rem;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.2s;
+      background: transparent; border: none; color: var(--text);
+      padding: 0.35rem 0.9rem; border-radius: 999px;
+      font-size: 0.85rem; cursor: pointer; transition: background 0.2s;
     }
-    #nav button:hover { background: rgba(255,255,255,0.18); }
-    #nav button:disabled { opacity: 0.3; cursor: default; }
+    #nav button:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
+    #nav button:disabled { opacity: 0.28; cursor: default; }
+    #counter { font-size: 0.78rem; color: var(--muted); min-width: 5ch; text-align: center; }
 
-    #counter { font-size: 0.85rem; color: #888; min-width: 4ch; text-align: center; }
-
-    /* progress bar */
     #progress {
-      position: fixed;
-      top: 0; left: 0;
-      height: 3px;
-      background: #7eb8f7;
-      transition: width 0.4s ease;
-      z-index: 100;
+      position: fixed; top: 0; left: 0; height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      transition: width 0.4s ease; z-index: 200;
     }
+    #slide-num {
+      position: fixed; top: 1.2rem; right: 1.6rem;
+      font-size: 0.7rem; color: rgba(255,255,255,0.18);
+      letter-spacing: 0.06em; z-index: 100;
+    }
+
+    /* visual layout helpers */
+    .vis-row {
+      display: flex; align-items: center; gap: 2rem;
+      width: 100%; max-width: 900px;
+    }
+    .vis-row .text-col { flex: 1; }
+    .vis-row .svg-col  { flex-shrink: 0; }
+
+    .grid2 {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.85rem; width: 100%; max-width: 860px; margin-top: 0.8rem;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.2rem; text-align: left;
+    }
+    .card h3 { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+    .card p  { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+    /* gist */
+    .gist-block {
+      background: #0d1117; border: 1px solid #30363d;
+      border-radius: 12px; padding: 1.2rem 1.6rem;
+      max-width: 780px; width: 100%; text-align: left;
+    }
+    .gist-header {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.9rem; font-size: 0.76rem; color: #8b949e;
+    }
+    .gist-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .gist-dot.r { background: #ff5f56; }
+    .gist-dot.y { background: #ffbd2e; }
+    .gist-dot.g { background: #27c93f; }
+    .gist-code {
+      font-family: "JetBrains Mono","Fira Code",monospace;
+      font-size: 0.78rem; line-height: 1.8; color: #c9d1d9;
+    }
+    .gist-code .k { color: #ff7b72; }
+    .gist-code .s { color: #a5d6ff; }
+    .gist-code .c { color: #8b949e; font-style: italic; }
+    .gist-code .h { color: #79c0ff; font-weight: 600; }
+    .gist-code .v { color: var(--teal); }
+
+    /* badge row */
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.7rem; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 999px; padding: 0.25rem 0.75rem;
+      font-size: 0.76rem; font-weight: 600; color: var(--muted);
+    }
+    .badge.blue   { color: var(--blue);   border-color: rgba(74,158,255,0.3);   background: var(--blue-dim); }
+    .badge.teal   { color: var(--teal);   border-color: rgba(61,214,172,0.3);   background: var(--teal-dim); }
+    .badge.amber  { color: var(--amber);  border-color: rgba(246,200,96,0.3);   background: var(--amber-dim); }
+    .badge.red    { color: var(--red);    border-color: rgba(255,107,107,0.3);  background: var(--red-dim); }
+    .badge.purple { color: var(--purple); border-color: rgba(167,139,250,0.3);  background: #1e1a3f; }
+
+    /* closing circles */
+    .closing-row {
+      display: flex; gap: 2rem; align-items: flex-start;
+      justify-content: center; margin-top: 1.2rem; flex-wrap: wrap;
+    }
+    .closing-item { text-align: center; max-width: 180px; }
+    .closing-item p { font-size: 0.82rem; color: var(--muted); margin-top: 0.6rem; line-height: 1.55; }
+    .closing-item strong { color: var(--text); display: block; margin-bottom: 0.2rem; font-size: 0.88rem; }
   </style>
 </head>
 <body>
 
 <div id="progress"></div>
-
+<div id="slide-num"></div>
 <div class="deck" id="deck">
 
-  <!-- Slide 1: Title -->
-  <section class="slide slide-title active">
-    <span class="tag">2026</span>
-    <h1>簡報標題</h1>
-    <p>副標題或一句話摘要寫在這裡</p>
-  </section>
+<!-- ① Cover -->
+<section class="slide slide-cover active">
+  <span class="tag">April 2026 · GitHub Gist</span>
+  <h1>LLM Wiki</h1>
+  <p style="margin-bottom:1.6rem;">Andrej Karpathy 提出的知識複利系統<br>讓 LLM 把你的資訊累積成結構化的維基百科</p>
 
-  <!-- Slide 2: Agenda -->
-  <section class="slide">
-    <h2>議程</h2>
-    <ul>
-      <li>背景與問題</li>
-      <li>解決方案</li>
-      <li>Demo</li>
-      <li>Next Steps</li>
-    </ul>
-  </section>
+  <!-- Knowledge graph SVG -->
+  <svg width="560" height="220" viewBox="0 0 560 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="glow-blue" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#4a9eff" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#4a9eff" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="glow-teal" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#3dd6ac" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#3dd6ac" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="glow-amber" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f6c860" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#f6c860" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="blur4">
+        <feGaussianBlur stdDeviation="4"/>
+      </filter>
+    </defs>
 
-  <!-- Slide 3: Section break -->
-  <section class="slide slide-section">
-    <span class="tag">Part 1</span>
-    <h1>背景與問題</h1>
-  </section>
+    <!-- glow halos -->
+    <ellipse cx="280" cy="110" rx="60" ry="60" fill="url(#glow-blue)" filter="url(#blur4)"/>
+    <ellipse cx="100" cy="60" rx="40" ry="40" fill="url(#glow-teal)" filter="url(#blur4)"/>
+    <ellipse cx="460" cy="60" rx="40" ry="40" fill="url(#glow-amber)" filter="url(#blur4)"/>
 
-  <!-- Slide 4: Content -->
-  <section class="slide">
-    <h2>背景</h2>
-    <p>在此說明背景脈絡，保持文字精簡，每張投影片傳達一個核心訊息。</p>
-  </section>
+    <!-- edges -->
+    <line x1="280" y1="110" x2="100" y2="60"  stroke="#4a9eff" stroke-width="1.5" stroke-opacity="0.45"/>
+    <line x1="280" y1="110" x2="460" y2="60"  stroke="#4a9eff" stroke-width="1.5" stroke-opacity="0.45"/>
+    <line x1="280" y1="110" x2="140" y2="180" stroke="#3dd6ac" stroke-width="1.5" stroke-opacity="0.4"/>
+    <line x1="280" y1="110" x2="420" y2="175" stroke="#3dd6ac" stroke-width="1.5" stroke-opacity="0.4"/>
+    <line x1="280" y1="110" x2="60"  y2="145" stroke="#a78bfa" stroke-width="1"   stroke-opacity="0.35"/>
+    <line x1="280" y1="110" x2="500" y2="145" stroke="#a78bfa" stroke-width="1"   stroke-opacity="0.35"/>
+    <line x1="280" y1="110" x2="195" y2="35"  stroke="#f6c860" stroke-width="1"   stroke-opacity="0.35"/>
+    <line x1="280" y1="110" x2="365" y2="35"  stroke="#f6c860" stroke-width="1"   stroke-opacity="0.35"/>
+    <line x1="100" y1="60"  x2="140" y2="180" stroke="#4a9eff" stroke-width="1"   stroke-opacity="0.2"/>
+    <line x1="460" y1="60"  x2="420" y2="175" stroke="#4a9eff" stroke-width="1"   stroke-opacity="0.2"/>
+    <line x1="60"  y1="145" x2="140" y2="180" stroke="#3dd6ac" stroke-width="0.8" stroke-opacity="0.2"/>
+    <line x1="500" y1="145" x2="420" y2="175" stroke="#3dd6ac" stroke-width="0.8" stroke-opacity="0.2"/>
 
-  <!-- Slide 5: Section break -->
-  <section class="slide slide-section">
-    <span class="tag">Part 2</span>
-    <h1>解決方案</h1>
-  </section>
+    <!-- outer nodes small -->
+    <circle cx="100" cy="60"  r="14" fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1.5"/>
+    <circle cx="460" cy="60"  r="14" fill="#0e1a2e" stroke="#f6c860" stroke-width="1.5"/>
+    <circle cx="140" cy="180" r="11" fill="#0e1a2e" stroke="#4a9eff" stroke-width="1.2"/>
+    <circle cx="420" cy="175" r="11" fill="#0e1a2e" stroke="#4a9eff" stroke-width="1.2"/>
+    <circle cx="60"  cy="145" r="8"  fill="#0e1a2e" stroke="#a78bfa" stroke-width="1"/>
+    <circle cx="500" cy="145" r="8"  fill="#0e1a2e" stroke="#a78bfa" stroke-width="1"/>
+    <circle cx="195" cy="35"  r="8"  fill="#0e1a2e" stroke="#f6c860" stroke-width="1"/>
+    <circle cx="365" cy="35"  r="8"  fill="#0e1a2e" stroke="#f6c860" stroke-width="1"/>
+    <circle cx="330" cy="195" r="7"  fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1"/>
+    <circle cx="230" cy="195" r="7"  fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1"/>
 
-  <!-- Slide 6: Content -->
-  <section class="slide">
-    <h2>方案說明</h2>
-    <ul>
-      <li>要點一</li>
-      <li>要點二</li>
-      <li>要點三</li>
-    </ul>
-  </section>
+    <!-- centre node -->
+    <circle cx="280" cy="110" r="30" fill="#0d1828" stroke="#4a9eff" stroke-width="2.5"/>
+    <circle cx="280" cy="110" r="22" fill="none"   stroke="#4a9eff" stroke-width="0.8" stroke-opacity="0.3"/>
 
-  <!-- Slide 7: Closing -->
-  <section class="slide slide-title">
-    <span class="tag">Thank You</span>
-    <h1>Q &amp; A</h1>
-    <p>歡迎提問</p>
-  </section>
+    <!-- centre icon (wiki book) -->
+    <text x="280" y="117" text-anchor="middle" font-size="20" fill="#4a9eff">◈</text>
+
+    <!-- labels -->
+    <text x="100" y="84" text-anchor="middle" font-size="9" fill="#3dd6ac" font-weight="600">Papers</text>
+    <text x="460" y="84" text-anchor="middle" font-size="9" fill="#f6c860" font-weight="600">Tools</text>
+    <text x="140" y="202" text-anchor="middle" font-size="9" fill="#4a9eff" font-weight="600">People</text>
+    <text x="420" y="196" text-anchor="middle" font-size="9" fill="#4a9eff" font-weight="600">Concepts</text>
+    <text x="60"  y="162" text-anchor="middle" font-size="8" fill="#a78bfa">Ideas</text>
+    <text x="500" y="162" text-anchor="middle" font-size="8" fill="#a78bfa">Events</text>
+    <text x="280" y="150" text-anchor="middle" font-size="9" fill="#8892a4">LLM Wiki</text>
+  </svg>
+</section>
+
+<!-- ② Karpathy -->
+<section class="slide left-align">
+  <span class="tag">Speaker</span>
+  <h2>Andrej Karpathy 是誰？</h2>
+  <div class="divider"></div>
+
+  <div class="vis-row" style="align-items:flex-start; gap:3rem;">
+    <!-- silhouette SVG -->
+    <div class="svg-col">
+      <svg width="160" height="200" viewBox="0 0 160 200" fill="none">
+        <defs>
+          <radialGradient id="av-glow" cx="50%" cy="35%" r="50%">
+            <stop offset="0%" stop-color="#4a9eff" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#4a9eff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="80" cy="80" r="72" fill="url(#av-glow)"/>
+        <circle cx="80" cy="80" r="72" fill="none" stroke="#4a9eff" stroke-width="1.5" stroke-opacity="0.3"/>
+        <!-- head -->
+        <ellipse cx="80" cy="58" rx="26" ry="28" fill="#1e3a5f"/>
+        <!-- shoulders/body -->
+        <path d="M30 175 Q30 130 55 125 Q68 120 80 122 Q92 120 105 125 Q130 130 130 175 Z" fill="#1e3a5f"/>
+        <!-- neural spark on head -->
+        <circle cx="80" cy="46" r="3" fill="#4a9eff" opacity="0.9"/>
+        <line x1="80" y1="32" x2="80" y2="43" stroke="#4a9eff" stroke-width="1.5" opacity="0.7"/>
+        <line x1="70" y1="36" x2="78" y2="43" stroke="#4a9eff" stroke-width="1" opacity="0.6"/>
+        <line x1="90" y1="36" x2="82" y2="43" stroke="#4a9eff" stroke-width="1" opacity="0.6"/>
+        <!-- quote marks -->
+        <text x="18" y="105" font-size="48" fill="#4a9eff" opacity="0.12" font-family="Georgia,serif">"</text>
+      </svg>
+    </div>
+
+    <div class="text-col">
+      <div style="background:var(--surface2); border-left:3px solid var(--blue); border-radius:0 10px 10px 0; padding:1rem 1.2rem; margin-bottom:1rem;">
+        <div style="font-size:0.95rem; font-weight:700; color:var(--text); margin-bottom:0.3rem;">Andrej Karpathy</div>
+        <div style="font-size:0.82rem; color:var(--muted); line-height:1.7;">
+          深度學習與 LLM 領域最具影響力的研究者之一。<br>
+          前 Tesla AI Director、OpenAI 共同創辦人之一，<br>
+          以清晰的技術教學聞名全球（nanoGPT、karpathy.ai）。<br>
+          2026 年 4 月在 GitHub Gist 分享了 <strong style="color:var(--blue);">LLM Wiki</strong> 概念，引發廣泛討論。
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge blue">Tesla AI</span>
+        <span class="badge blue">OpenAI</span>
+        <span class="badge teal">nanoGPT</span>
+        <span class="badge">Stanford CS231n</span>
+        <span class="badge">YouTube AI教學</span>
+      </div>
+      <div class="highlight" style="margin-top:1rem;">
+        <strong>核心信念：</strong>AI 工具應讓人類的知識能像「複利」一樣持續累積，而不是每次從零開始搜索。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ③ Problem -->
+<section class="slide slide-red">
+  <span class="tag red">Problem</span>
+  <h2>知識管理的五大困境</h2>
+  <div class="divider"></div>
+
+  <!-- 5 icons grid -->
+  <div style="display:flex; gap:1.2rem; flex-wrap:wrap; justify-content:center; margin-top:0.6rem; max-width:880px;">
+
+    <!-- icon 1: shredded paper -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem 1.2rem; width:155px; text-align:center;">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <rect x="12" y="4" width="28" height="34" rx="3" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="17" y1="12" x2="35" y2="12" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="17" y1="17" x2="35" y2="17" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="17" y1="22" x2="30" y2="22" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- shredder bottom -->
+        <rect x="8" y="36" width="36" height="7" rx="2" fill="#ff6b6b" fill-opacity="0.2" stroke="#ff6b6b" stroke-width="1.2"/>
+        <line x1="16" y1="43" x2="14" y2="50" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="20" y1="43" x2="19" y2="50" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="26" y1="43" x2="26" y2="50" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="32" y1="43" x2="33" y2="50" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="37" y1="43" x2="38" y2="50" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div style="font-size:0.78rem; font-weight:700; color:var(--red); margin-top:0.5rem;">資訊碎片化</div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.25rem; line-height:1.4;">散落各處，難以整合</div>
+    </div>
+
+    <!-- icon 2: forgetting / brain with X -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem 1.2rem; width:155px; text-align:center;">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <path d="M26 8 C16 8 10 15 10 24 C10 30 13 35 18 38 L18 44 L34 44 L34 38 C39 35 42 30 42 24 C42 15 36 8 26 8Z" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="20" y1="22" x2="32" y2="30" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+        <line x1="32" y1="22" x2="20" y2="30" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div style="font-size:0.78rem; font-weight:700; color:var(--red); margin-top:0.5rem;">知識遺忘</div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.25rem; line-height:1.4;">讀過即忘，重複搜索</div>
+    </div>
+
+    <!-- icon 3: broken link -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem 1.2rem; width:155px; text-align:center;">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <path d="M20 32 L14 38 C11 41 11 46 14 49 C17 52 22 52 25 49 L31 43" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M32 20 L38 14 C41 11 46 11 49 14 C52 17 52 22 49 25 L43 31" stroke="#4a9eff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+        <line x1="25" y1="28" x2="28" y2="24" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <line x1="30" y1="23" x2="27" y2="27" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+      </svg>
+      <div style="font-size:0.78rem; font-weight:700; color:var(--red); margin-top:0.5rem;">缺乏連結</div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.25rem; line-height:1.4;">脈絡缺失，孤立文件</div>
+    </div>
+
+    <!-- icon 4: repeat loop -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem 1.2rem; width:155px; text-align:center;">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <path d="M38 14 A18 18 0 1 1 14 38" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <polyline points="34,8 40,14 34,20" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <text x="26" y="30" text-anchor="middle" font-size="11" fill="#ff6b6b" font-weight="700">↺</text>
+      </svg>
+      <div style="font-size:0.78rem; font-weight:700; color:var(--red); margin-top:0.5rem;">重複勞動</div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.25rem; line-height:1.4;">每次重新解釋背景</div>
+    </div>
+
+    <!-- icon 5: brick wall -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1rem 1.2rem; width:155px; text-align:center;">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <!-- wall bricks -->
+        <rect x="6"  y="10" width="18" height="9" rx="1.5" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.2"/>
+        <rect x="28" y="10" width="18" height="9" rx="1.5" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.2"/>
+        <rect x="14" y="21" width="18" height="9" rx="1.5" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.2"/>
+        <rect x="6"  y="32" width="18" height="9" rx="1.5" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.2"/>
+        <rect x="28" y="32" width="18" height="9" rx="1.5" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.2"/>
+        <rect x="6"  y="21" width="6"  height="9" rx="1.5" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.2"/>
+        <rect x="36" y="21" width="10" height="9" rx="1.5" fill="#1a2234" stroke="#ff6b6b" stroke-width="1.2"/>
+        <!-- crack -->
+        <path d="M26 10 L23 21 L27 32 L24 42" stroke="#f6c860" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+      <div style="font-size:0.78rem; font-weight:700; color:var(--red); margin-top:0.5rem;">無法累積</div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.25rem; line-height:1.4;">知識停在「點」層次</div>
+    </div>
+  </div>
+
+  <div class="highlight red" style="margin-top:1.2rem; max-width:860px;">
+    <strong>核心問題：</strong>你的知識不會自動幫你「工作」。讀了、存了、卻還是沒辦法複用。
+  </div>
+</section>
+
+<!-- ④ RAG limitations -->
+<section class="slide slide-red">
+  <span class="tag red">Traditional Solution</span>
+  <h2>RAG 的限制</h2>
+  <div class="divider"></div>
+
+  <!-- RAG flow diagram -->
+  <svg width="700" height="110" viewBox="0 0 700 110" fill="none" style="margin-bottom:1rem;">
+    <defs>
+      <marker id="arr-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#ff6b6b" opacity="0.7"/>
+      </marker>
+    </defs>
+    <!-- boxes -->
+    <rect x="20"  y="30" width="130" height="50" rx="10" fill="#1a1014" stroke="#ff6b6b" stroke-width="1.5"/>
+    <text x="85"  y="52" text-anchor="middle" font-size="11" fill="#ff6b6b" font-weight="700">User Query</text>
+    <text x="85"  y="68" text-anchor="middle" font-size="9" fill="#8892a4">提問</text>
+
+    <rect x="200" y="30" width="130" height="50" rx="10" fill="#1a1014" stroke="#ff6b6b" stroke-width="1.5"/>
+    <text x="265" y="52" text-anchor="middle" font-size="11" fill="#ff6b6b" font-weight="700">Vector DB</text>
+    <text x="265" y="68" text-anchor="middle" font-size="9" fill="#8892a4">碎片向量庫</text>
+
+    <rect x="380" y="30" width="130" height="50" rx="10" fill="#1a1014" stroke="#ff6b6b" stroke-width="1.5"/>
+    <text x="445" y="52" text-anchor="middle" font-size="11" fill="#ff6b6b" font-weight="700">Raw Docs</text>
+    <text x="445" y="68" text-anchor="middle" font-size="9" fill="#8892a4">原始文件（未整理）</text>
+
+    <rect x="560" y="30" width="120" height="50" rx="10" fill="#1a1014" stroke="#8892a4" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="620" y="52" text-anchor="middle" font-size="11" fill="#8892a4" font-weight="600">Answer?</text>
+    <text x="620" y="68" text-anchor="middle" font-size="9" fill="#8892a4">品質不穩定</text>
+
+    <!-- arrows -->
+    <line x1="150" y1="55" x2="198" y2="55" stroke="#ff6b6b" stroke-width="1.8" marker-end="url(#arr-red)" opacity="0.7"/>
+    <line x1="330" y1="55" x2="378" y2="55" stroke="#ff6b6b" stroke-width="1.8" marker-end="url(#arr-red)" opacity="0.7"/>
+    <line x1="510" y1="55" x2="558" y2="55" stroke="#8892a4" stroke-width="1.8" marker-end="url(#arr-red)" opacity="0.5"/>
+
+    <!-- problem labels -->
+    <text x="265" y="96" text-anchor="middle" font-size="9" fill="#ff6b6b" opacity="0.8">無結構</text>
+    <text x="445" y="96" text-anchor="middle" font-size="9" fill="#ff6b6b" opacity="0.8">無脈絡</text>
+  </svg>
+
+  <div style="display:flex; gap:0.8rem; flex-wrap:wrap; justify-content:center; max-width:820px;">
+    <div style="background:var(--surface); border:1px solid rgba(255,107,107,0.2); border-radius:10px; padding:0.7rem 1rem; width:195px; text-align:left;">
+      <div style="color:var(--red); font-size:0.8rem; font-weight:700; margin-bottom:0.2rem;">✗ 無真實理解</div>
+      <div style="color:var(--muted); font-size:0.74rem; line-height:1.5;">只有查找，沒有整理過的知識</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid rgba(255,107,107,0.2); border-radius:10px; padding:0.7rem 1rem; width:195px; text-align:left;">
+      <div style="color:var(--red); font-size:0.8rem; font-weight:700; margin-bottom:0.2rem;">✗ 碎片仍是碎片</div>
+      <div style="color:var(--muted); font-size:0.74rem; line-height:1.5;">取出來的內容依然缺乏結構</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid rgba(255,107,107,0.2); border-radius:10px; padding:0.7rem 1rem; width:195px; text-align:left;">
+      <div style="color:var(--red); font-size:0.8rem; font-weight:700; margin-bottom:0.2rem;">✗ 更新成本高</div>
+      <div style="color:var(--muted); font-size:0.74rem; line-height:1.5;">加入新資料需重新 embedding</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid rgba(255,107,107,0.2); border-radius:10px; padding:0.7rem 1rem; width:195px; text-align:left;">
+      <div style="color:var(--red); font-size:0.8rem; font-weight:700; margin-bottom:0.2rem;">✗ 難以追溯</div>
+      <div style="color:var(--muted); font-size:0.74rem; line-height:1.5;">AI 說了什麼、從哪來，不透明</div>
+    </div>
+  </div>
+  <div class="highlight red" style="margin-top:1rem; max-width:820px;">
+    RAG 解決了「找得到」的問題，<strong>但沒有解決「知識沒有被真正組織」的問題。</strong>
+  </div>
+</section>
+
+<!-- ⑤ LLM Wiki concept -->
+<section class="slide slide-teal">
+  <span class="tag teal">Core Concept</span>
+  <h1>LLM Wiki</h1>
+  <div class="divider" style="background:linear-gradient(90deg,var(--teal),transparent);"></div>
+
+  <!-- before → LLM → after diagram -->
+  <svg width="720" height="130" viewBox="0 0 720 130" fill="none" style="margin-bottom:1rem;">
+    <defs>
+      <marker id="arr-teal" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#3dd6ac"/>
+      </marker>
+    </defs>
+
+    <!-- BEFORE: scattered data -->
+    <rect x="10" y="20" width="175" height="90" rx="10" fill="#0e1a2e" stroke="#8892a4" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="97" y="15" text-anchor="middle" font-size="9" fill="#8892a4">散亂輸入</text>
+    <rect x="22" y="32" width="70" height="16" rx="3" fill="#1a2234" stroke="#8892a4" stroke-width="0.8"/>
+    <text x="57" y="44" text-anchor="middle" font-size="8" fill="#8892a4">論文.pdf</text>
+    <rect x="98" y="32" width="76" height="16" rx="3" fill="#1a2234" stroke="#8892a4" stroke-width="0.8"/>
+    <text x="136" y="44" text-anchor="middle" font-size="8" fill="#8892a4">筆記.md</text>
+    <rect x="22" y="54" width="60" height="16" rx="3" fill="#1a2234" stroke="#8892a4" stroke-width="0.8"/>
+    <text x="52" y="66" text-anchor="middle" font-size="8" fill="#8892a4">對話紀錄</text>
+    <rect x="88" y="54" width="86" height="16" rx="3" fill="#1a2234" stroke="#8892a4" stroke-width="0.8"/>
+    <text x="131" y="66" text-anchor="middle" font-size="8" fill="#8892a4">技術文章</text>
+    <rect x="22" y="76" width="152" height="16" rx="3" fill="#1a2234" stroke="#8892a4" stroke-width="0.8"/>
+    <text x="98" y="88" text-anchor="middle" font-size="8" fill="#8892a4">Slack 訊息 / 書籤 / ...</text>
+
+    <!-- arrow 1 -->
+    <line x1="187" y1="65" x2="232" y2="65" stroke="#3dd6ac" stroke-width="2" marker-end="url(#arr-teal)"/>
+
+    <!-- LLM Editor box -->
+    <rect x="234" y="28" width="144" height="74" rx="12" fill="#0e3028" stroke="#3dd6ac" stroke-width="2"/>
+    <text x="306" y="56" text-anchor="middle" font-size="11" fill="#3dd6ac" font-weight="700">LLM Editor</text>
+    <text x="306" y="72" text-anchor="middle" font-size="9" fill="#3dd6ac" opacity="0.7">增量整合</text>
+    <text x="306" y="86" text-anchor="middle" font-size="9" fill="#3dd6ac" opacity="0.7">智慧更新</text>
+    <!-- gear icon -->
+    <circle cx="306" cy="44" r="8" fill="none" stroke="#3dd6ac" stroke-width="1.5" opacity="0.5"/>
+    <text x="306" y="48" text-anchor="middle" font-size="10" fill="#3dd6ac" opacity="0.6">⚙</text>
+
+    <!-- arrow 2 -->
+    <line x1="380" y1="65" x2="425" y2="65" stroke="#3dd6ac" stroke-width="2" marker-end="url(#arr-teal)"/>
+
+    <!-- AFTER: wiki -->
+    <rect x="427" y="20" width="275" height="90" rx="10" fill="#0e3028" stroke="#3dd6ac" stroke-width="1.5"/>
+    <text x="564" y="15" text-anchor="middle" font-size="9" fill="#3dd6ac">結構化 Wiki</text>
+    <!-- wiki pages -->
+    <rect x="438" y="32" width="76" height="22" rx="4" fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1"/>
+    <text x="476" y="47" text-anchor="middle" font-size="8.5" fill="#3dd6ac">📄 concepts/</text>
+    <rect x="522" y="32" width="76" height="22" rx="4" fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1"/>
+    <text x="560" y="47" text-anchor="middle" font-size="8.5" fill="#3dd6ac">📄 papers/</text>
+    <rect x="606" y="32" width="76" height="22" rx="4" fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1"/>
+    <text x="644" y="47" text-anchor="middle" font-size="8.5" fill="#3dd6ac">📄 people/</text>
+    <!-- links between pages -->
+    <line x1="514" y1="43" x2="522" y2="43" stroke="#3dd6ac" stroke-width="1" opacity="0.5"/>
+    <line x1="598" y1="43" x2="606" y2="43" stroke="#3dd6ac" stroke-width="1" opacity="0.5"/>
+    <text x="480" y="70" text-anchor="middle" font-size="8" fill="#3dd6ac" opacity="0.6">⟵ 相互連結 ⟶</text>
+    <text x="564" y="85" text-anchor="middle" font-size="8" fill="#3dd6ac" opacity="0.6">human-readable Markdown</text>
+    <text x="564" y="98" text-anchor="middle" font-size="8" fill="#3dd6ac" opacity="0.8">越用越強 ∞</text>
+  </svg>
+
+  <div class="highlight teal" style="max-width:700px;">
+    <strong>一句話核心：</strong>讓 LLM 扮演維基編輯，每次輸入新資料，智慧地更新相關詞條，而不是另起爐灶。
+  </div>
+</section>
+
+<!-- ⑥ RAG vs LLM Wiki -->
+<section class="slide">
+  <span class="tag">Comparison</span>
+  <h2>RAG vs. LLM Wiki</h2>
+  <div class="divider"></div>
+
+  <div style="display:flex; gap:1.4rem; width:100%; max-width:860px; margin-top:0.4rem; align-items:stretch;">
+
+    <!-- RAG column -->
+    <div style="flex:1; background:#130f1a; border:1.5px solid rgba(255,107,107,0.35); border-radius:14px; padding:1.2rem; display:flex; flex-direction:column; gap:0.75rem;">
+      <div style="display:flex; align-items:center; gap:0.7rem; margin-bottom:0.2rem;">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" fill="#1a0f1a" stroke="#ff6b6b" stroke-width="1.5"/>
+          <circle cx="14" cy="14" r="5" fill="none" stroke="#ff6b6b" stroke-width="1.5"/>
+          <line x1="14" y1="4"  x2="14" y2="9"  stroke="#ff6b6b" stroke-width="1.5"/>
+          <line x1="14" y1="19" x2="14" y2="24" stroke="#ff6b6b" stroke-width="1.5"/>
+          <line x1="4"  y1="14" x2="9"  y2="14" stroke="#ff6b6b" stroke-width="1.5"/>
+          <line x1="19" y1="14" x2="24" y2="14" stroke="#ff6b6b" stroke-width="1.5"/>
+        </svg>
+        <span style="font-size:1rem; font-weight:700; color:var(--red);">RAG</span>
+      </div>
+      <div style="font-size:0.79rem; color:#ccc; line-height:1.6; flex:1;">
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--red); font-weight:700; flex-shrink:0;">✗</span><span><strong style="color:#ccc;">知識組織：</strong>碎片化向量，無結構</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--red); font-weight:700; flex-shrink:0;">✗</span><span><strong style="color:#ccc;">查詢方式：</strong>每次從原始資料檢索</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--red); font-weight:700; flex-shrink:0;">✗</span><span><strong style="color:#ccc;">知識更新：</strong>重新 embedding，成本高</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--red); font-weight:700; flex-shrink:0;">✗</span><span><strong style="color:#ccc;">可解釋性：</strong>來源難以追溯</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline;"><span style="color:var(--red); font-weight:700; flex-shrink:0;">✗</span><span><strong style="color:#ccc;">知識積累：</strong>不累積，每次重頭</span></div>
+      </div>
+    </div>
+
+    <!-- VS divider -->
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.3rem;">
+      <div style="width:1px; flex:1; background:linear-gradient(to bottom, transparent, var(--border), transparent);"></div>
+      <div style="font-size:0.75rem; font-weight:700; color:var(--muted); padding:0.4rem 0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:6px;">VS</div>
+      <div style="width:1px; flex:1; background:linear-gradient(to bottom, transparent, var(--border), transparent);"></div>
+    </div>
+
+    <!-- LLM Wiki column -->
+    <div style="flex:1; background:#0d1828; border:1.5px solid rgba(74,158,255,0.35); border-radius:14px; padding:1.2rem; display:flex; flex-direction:column; gap:0.75rem;">
+      <div style="display:flex; align-items:center; gap:0.7rem; margin-bottom:0.2rem;">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="2" y="4" width="24" height="20" rx="3" fill="#0e1a2e" stroke="#4a9eff" stroke-width="1.5"/>
+          <line x1="7"  y1="10" x2="21" y2="10" stroke="#4a9eff" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="7"  y1="14" x2="21" y2="14" stroke="#4a9eff" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="7"  y1="18" x2="16" y2="18" stroke="#4a9eff" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <span style="font-size:1rem; font-weight:700; color:var(--blue);">LLM Wiki</span>
+      </div>
+      <div style="font-size:0.79rem; color:#ccc; line-height:1.6; flex:1;">
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--teal); font-weight:700; flex-shrink:0;">✓</span><span><strong style="color:#ccc;">知識組織：</strong>結構化 Markdown，有頁面連結</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--teal); font-weight:700; flex-shrink:0;">✓</span><span><strong style="color:#ccc;">查詢方式：</strong>LLM 直接讀整理好的 wiki</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--teal); font-weight:700; flex-shrink:0;">✓</span><span><strong style="color:#ccc;">知識更新：</strong>增量 update，保留歷史</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:0.45rem;"><span style="color:var(--teal); font-weight:700; flex-shrink:0;">✓</span><span><strong style="color:#ccc;">可解釋性：</strong>清楚可讀，人可直接審閱</span></div>
+        <div style="display:flex; gap:0.5rem; align-items:baseline;"><span style="color:var(--teal); font-weight:700; flex-shrink:0;">✓</span><span><strong style="color:#ccc;">知識積累：</strong>複利增長，越用越強</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑦ How it works -->
+<section class="slide">
+  <span class="tag teal">How It Works</span>
+  <h2>運作流程</h2>
+  <div class="divider" style="background:linear-gradient(90deg,var(--teal),transparent);"></div>
+
+  <!-- horizontal 5-step pipeline SVG -->
+  <svg width="820" height="100" viewBox="0 0 820 100" fill="none" style="margin-bottom:1rem;">
+    <defs>
+      <marker id="arr-pipe" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#3dd6ac" opacity="0.8"/>
+      </marker>
+    </defs>
+
+    <!-- step boxes -->
+    <rect x="10"  y="20" width="128" height="56" rx="10" fill="#0e1a2e" stroke="#4a9eff"  stroke-width="1.5"/>
+    <rect x="178" y="20" width="128" height="56" rx="10" fill="#0e1a2e" stroke="#3dd6ac"  stroke-width="1.5"/>
+    <rect x="346" y="20" width="128" height="56" rx="10" fill="#0e1a2e" stroke="#3dd6ac"  stroke-width="1.5"/>
+    <rect x="514" y="20" width="128" height="56" rx="10" fill="#0e1a2e" stroke="#a78bfa"  stroke-width="1.5"/>
+    <rect x="682" y="20" width="128" height="56" rx="10" fill="#0e1a2e" stroke="#f6c860"  stroke-width="1.5"/>
+
+    <!-- step numbers -->
+    <circle cx="35"  cy="35" r="11" fill="#1e3a5f" stroke="#4a9eff" stroke-width="1.2"/>
+    <circle cx="203" cy="35" r="11" fill="#0e3028" stroke="#3dd6ac" stroke-width="1.2"/>
+    <circle cx="371" cy="35" r="11" fill="#0e3028" stroke="#3dd6ac" stroke-width="1.2"/>
+    <circle cx="539" cy="35" r="11" fill="#1e1a3f" stroke="#a78bfa" stroke-width="1.2"/>
+    <circle cx="707" cy="35" r="11" fill="#3a2a00" stroke="#f6c860" stroke-width="1.2"/>
+    <text x="35"  y="39" text-anchor="middle" font-size="10" fill="#4a9eff"  font-weight="700">1</text>
+    <text x="203" y="39" text-anchor="middle" font-size="10" fill="#3dd6ac"  font-weight="700">2</text>
+    <text x="371" y="39" text-anchor="middle" font-size="10" fill="#3dd6ac"  font-weight="700">3</text>
+    <text x="539" y="39" text-anchor="middle" font-size="10" fill="#a78bfa"  font-weight="700">4</text>
+    <text x="707" y="39" text-anchor="middle" font-size="10" fill="#f6c860"  font-weight="700">5</text>
+
+    <!-- step labels -->
+    <text x="74"  y="47" text-anchor="middle" font-size="9.5" fill="#4a9eff"  font-weight="700">定義 Schema</text>
+    <text x="74"  y="62" text-anchor="middle" font-size="8"   fill="#8892a4">知識庫骨架</text>
+    <text x="242" y="47" text-anchor="middle" font-size="9.5" fill="#3dd6ac"  font-weight="700">餵入資料</text>
+    <text x="242" y="62" text-anchor="middle" font-size="8"   fill="#8892a4">文章/筆記/論文</text>
+    <text x="410" y="47" text-anchor="middle" font-size="9.5" fill="#3dd6ac"  font-weight="700">LLM 整合</text>
+    <text x="410" y="62" text-anchor="middle" font-size="8"   fill="#8892a4">增量 update wiki</text>
+    <text x="578" y="47" text-anchor="middle" font-size="9.5" fill="#a78bfa"  font-weight="700">Wiki 連結</text>
+    <text x="578" y="62" text-anchor="middle" font-size="8"   fill="#8892a4">頁面相互串連</text>
+    <text x="746" y="47" text-anchor="middle" font-size="9.5" fill="#f6c860"  font-weight="700">查詢 Wiki</text>
+    <text x="746" y="62" text-anchor="middle" font-size="8"   fill="#8892a4">LLM 讀已整理稿</text>
+
+    <!-- arrows -->
+    <line x1="140" y1="48" x2="176" y2="48" stroke="#3dd6ac" stroke-width="1.8" marker-end="url(#arr-pipe)" opacity="0.8"/>
+    <line x1="308" y1="48" x2="344" y2="48" stroke="#3dd6ac" stroke-width="1.8" marker-end="url(#arr-pipe)" opacity="0.8"/>
+    <line x1="476" y1="48" x2="512" y2="48" stroke="#3dd6ac" stroke-width="1.8" marker-end="url(#arr-pipe)" opacity="0.8"/>
+    <line x1="644" y1="48" x2="680" y2="48" stroke="#3dd6ac" stroke-width="1.8" marker-end="url(#arr-pipe)" opacity="0.8"/>
+  </svg>
+
+  <!-- detail cards -->
+  <div style="display:flex; gap:0.7rem; width:100%; max-width:820px;">
+    <div style="flex:1; background:var(--surface); border:1px solid rgba(74,158,255,0.2); border-radius:8px; padding:0.7rem 0.8rem;">
+      <div style="font-size:0.78rem; font-weight:700; color:var(--blue); margin-bottom:0.2rem;">① Schema</div>
+      <div style="font-size:0.72rem; color:var(--muted); line-height:1.5;">撰寫 schema.md，定義主題分類與頁面格式</div>
+    </div>
+    <div style="flex:1; background:var(--surface); border:1px solid rgba(61,214,172,0.2); border-radius:8px; padding:0.7rem 0.8rem;">
+      <div style="font-size:0.78rem; font-weight:700; color:var(--teal); margin-bottom:0.2rem;">② 原始資料</div>
+      <div style="font-size:0.72rem; color:var(--muted); line-height:1.5;">任何格式：PDF、Markdown、對話紀錄</div>
+    </div>
+    <div style="flex:1; background:var(--surface); border:1px solid rgba(61,214,172,0.2); border-radius:8px; padding:0.7rem 0.8rem;">
+      <div style="font-size:0.78rem; font-weight:700; color:var(--teal); margin-bottom:0.2rem;">③ LLM 整合</div>
+      <div style="font-size:0.72rem; color:var(--muted); line-height:1.5;">智慧更新既有頁面，或新增頁面</div>
+    </div>
+    <div style="flex:1; background:var(--surface); border:1px solid rgba(167,139,250,0.2); border-radius:8px; padding:0.7rem 0.8rem;">
+      <div style="font-size:0.78rem; font-weight:700; color:var(--purple); margin-bottom:0.2rem;">④ 連結</div>
+      <div style="font-size:0.72rem; color:var(--muted); line-height:1.5;">Wikipedia 式相互連結，形成知識網絡</div>
+    </div>
+    <div style="flex:1; background:var(--surface); border:1px solid rgba(246,200,96,0.2); border-radius:8px; padding:0.7rem 0.8rem;">
+      <div style="font-size:0.78rem; font-weight:700; color:var(--amber); margin-bottom:0.2rem;">⑤ 查詢</div>
+      <div style="font-size:0.72rem; color:var(--muted); line-height:1.5;">LLM 讀已整理的 wiki，品質更高</div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑧ Schema -->
+<section class="slide left-align">
+  <span class="tag amber">Schema</span>
+  <h2>Schema 的角色</h2>
+  <div class="divider" style="background:linear-gradient(90deg,var(--amber),transparent);"></div>
+
+  <div class="vis-row" style="align-items:flex-start; gap:2rem; max-width:900px;">
+    <!-- code block -->
+    <div style="flex:1.4;">
+      <div class="gist-block">
+        <div class="gist-header">
+          <div class="gist-dot r"></div><div class="gist-dot y"></div><div class="gist-dot g"></div>
+          <span>schema.md</span>
+        </div>
+        <pre class="gist-code"><span class="h"># Wiki Schema: AI Research KB</span>
+
+<span class="h">## Structure</span>
+<span class="k">- concepts/</span>   <span class="c"># Core ML/AI concepts</span>
+<span class="k">- papers/</span>     <span class="c"># Paper summaries</span>
+<span class="k">- people/</span>     <span class="c"># Researchers</span>
+<span class="k">- tools/</span>      <span class="c"># Libraries & techniques</span>
+
+<span class="h">## Page Format</span>
+<span class="v">title:</span> <span class="s">&lt;topic&gt;</span>
+<span class="v">related:</span> <span class="s">[[concept-a]], [[paper-b]]</span>
+<span class="v">summary:</span> <span class="s">&lt;2-3 sentence overview&gt;</span>
+<span class="v">details:</span> <span class="s">&lt;notes, examples&gt;</span></pre>
+      </div>
+    </div>
+
+    <!-- tree SVG -->
+    <div class="svg-col">
+      <svg width="210" height="240" viewBox="0 0 210 240" fill="none">
+        <defs>
+          <marker id="arr-tree" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+            <polygon points="0 0, 6 2.5, 0 5" fill="#f6c860" opacity="0.7"/>
+          </marker>
+        </defs>
+        <!-- root -->
+        <rect x="60" y="8" width="90" height="28" rx="6" fill="#3a2a00" stroke="#f6c860" stroke-width="1.5"/>
+        <text x="105" y="27" text-anchor="middle" font-size="10" fill="#f6c860" font-weight="700">schema.md</text>
+
+        <!-- trunk -->
+        <line x1="105" y1="36" x2="105" y2="58" stroke="#f6c860" stroke-width="1.2" opacity="0.5"/>
+
+        <!-- branches -->
+        <line x1="105" y1="58" x2="38"  y2="80" stroke="#f6c860" stroke-width="1" opacity="0.5"/>
+        <line x1="105" y1="58" x2="105" y2="80" stroke="#f6c860" stroke-width="1" opacity="0.5"/>
+        <line x1="105" y1="58" x2="172" y2="80" stroke="#f6c860" stroke-width="1" opacity="0.5"/>
+
+        <rect x="6"   y="80" width="64" height="24" rx="5" fill="#1a2234" stroke="#f6c860" stroke-width="1"/>
+        <rect x="73"  y="80" width="64" height="24" rx="5" fill="#1a2234" stroke="#f6c860" stroke-width="1"/>
+        <rect x="140" y="80" width="64" height="24" rx="5" fill="#1a2234" stroke="#f6c860" stroke-width="1"/>
+        <text x="38"  y="96" text-anchor="middle" font-size="9" fill="#f6c860">concepts/</text>
+        <text x="105" y="96" text-anchor="middle" font-size="9" fill="#f6c860">papers/</text>
+        <text x="172" y="96" text-anchor="middle" font-size="9" fill="#f6c860">people/</text>
+
+        <!-- sub-branches for concepts -->
+        <line x1="38" y1="104" x2="20"  y2="128" stroke="#f6c860" stroke-width="0.8" opacity="0.4"/>
+        <line x1="38" y1="104" x2="56"  y2="128" stroke="#f6c860" stroke-width="0.8" opacity="0.4"/>
+        <rect x="4"   y="128" width="70" height="20" rx="4" fill="#111827" stroke="#f6c860" stroke-width="0.8" opacity="0.7"/>
+        <rect x="21"  y="128" width="70" height="20" rx="4" fill="#111827" stroke="#f6c860" stroke-width="0.8" opacity="0.7"/>
+        <text x="39"  y="142" text-anchor="middle" font-size="8" fill="#8892a4">LLM.md</text>
+        <text x="56"  y="142" text-anchor="middle" font-size="8" fill="#8892a4">RAG.md</text>
+
+        <!-- sub-branches for papers -->
+        <line x1="105" y1="104" x2="105" y2="128" stroke="#f6c860" stroke-width="0.8" opacity="0.4"/>
+        <rect x="72" y="128" width="66" height="20" rx="4" fill="#111827" stroke="#f6c860" stroke-width="0.8" opacity="0.7"/>
+        <text x="105" y="142" text-anchor="middle" font-size="8" fill="#8892a4">GPT-4.md</text>
+
+        <!-- sub-branches for people -->
+        <line x1="172" y1="104" x2="155" y2="128" stroke="#f6c860" stroke-width="0.8" opacity="0.4"/>
+        <line x1="172" y1="104" x2="189" y2="128" stroke="#f6c860" stroke-width="0.8" opacity="0.4"/>
+        <rect x="120" y="128" width="70" height="20" rx="4" fill="#111827" stroke="#f6c860" stroke-width="0.8" opacity="0.7"/>
+        <rect x="155" y="128" width="55" height="20" rx="4" fill="#111827" stroke="#f6c860" stroke-width="0.8" opacity="0.7"/>
+        <text x="155" y="142" text-anchor="middle" font-size="8" fill="#8892a4">Karpathy.md</text>
+        <text x="182" y="142" text-anchor="middle" font-size="8" fill="#8892a4">LeCun.md</text>
+
+        <!-- cross links -->
+        <path d="M74 138 Q105 165 120 138" stroke="#3dd6ac" stroke-width="0.8" stroke-dasharray="3,2" fill="none" opacity="0.5"/>
+        <text x="105" y="178" text-anchor="middle" font-size="8" fill="#3dd6ac" opacity="0.6">[[相互連結]]</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="highlight amber" style="margin-top:0.8rem; max-width:900px;">
+    <strong>關鍵：</strong>Schema 是「憲法」——定義知識庫骨架，讓每次更新都朝同一方向累積，不散亂增生。
+  </div>
+</section>
+
+<!-- ⑨ Use cases -->
+<section class="slide">
+  <span class="tag teal">Use Cases</span>
+  <h2>應用場景</h2>
+  <div class="divider" style="background:linear-gradient(90deg,var(--teal),transparent);"></div>
+
+  <div class="grid2" style="max-width:820px;">
+    <!-- person -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:1rem;">
+      <div style="flex-shrink:0;">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="25" fill="#0e1a2e" stroke="#4a9eff" stroke-width="1.5"/>
+          <circle cx="26" cy="18" r="8"  fill="#1e3a5f" stroke="#4a9eff" stroke-width="1.5"/>
+          <path d="M10 44 Q10 34 26 34 Q42 34 42 44" fill="#1e3a5f" stroke="#4a9eff" stroke-width="1.5"/>
+          <!-- book on lap -->
+          <rect x="18" y="37" width="16" height="10" rx="2" fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1"/>
+          <line x1="26" y1="37" x2="26" y2="47" stroke="#3dd6ac" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div>
+        <h3>個人知識庫</h3>
+        <p>研究人員把每天讀的論文自動整理進個人 wiki，下次研究相關主題有完整脈絡。</p>
+      </div>
+    </div>
+
+    <!-- office building -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:1rem;">
+      <div style="flex-shrink:0;">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="25" fill="#0e3028" stroke="#3dd6ac" stroke-width="1.5"/>
+          <rect x="14" y="16" width="24" height="26" rx="2" fill="#0e1a2e" stroke="#3dd6ac" stroke-width="1.2"/>
+          <rect x="17" y="20" width="5" height="5" rx="1" fill="#3dd6ac" opacity="0.5"/>
+          <rect x="24" y="20" width="5" height="5" rx="1" fill="#3dd6ac" opacity="0.5"/>
+          <rect x="31" y="20" width="5" height="5" rx="1" fill="#3dd6ac" opacity="0.5"/>
+          <rect x="17" y="28" width="5" height="5" rx="1" fill="#3dd6ac" opacity="0.5"/>
+          <rect x="31" y="28" width="5" height="5" rx="1" fill="#3dd6ac" opacity="0.5"/>
+          <rect x="22" y="33" width="8" height="9" rx="1" fill="#3dd6ac" opacity="0.3"/>
+        </svg>
+      </div>
+      <div>
+        <h3>企業知識管理</h3>
+        <p>會議紀錄、設計文件增量整合進企業 wiki，新員工 onboarding 有豐富組織知識支撐。</p>
+      </div>
+    </div>
+
+    <!-- microscope -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:1rem;">
+      <div style="flex-shrink:0;">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="25" fill="#1e1a3f" stroke="#a78bfa" stroke-width="1.5"/>
+          <!-- microscope body -->
+          <line x1="26" y1="14" x2="26" y2="38" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse cx="26" cy="14" rx="6" ry="4" fill="#1a2234" stroke="#a78bfa" stroke-width="1.2"/>
+          <ellipse cx="26" cy="32" rx="8" ry="5" fill="#1a2234" stroke="#a78bfa" stroke-width="1.2"/>
+          <line x1="14" y1="42" x2="38" y2="42" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/>
+          <!-- sparkles = discovery -->
+          <circle cx="38" cy="18" r="2"  fill="#f6c860"/>
+          <line x1="38" y1="14" x2="38" y2="12" stroke="#f6c860" stroke-width="1"/>
+          <line x1="42" y1="18" x2="44" y2="18" stroke="#f6c860" stroke-width="1"/>
+        </svg>
+      </div>
+      <div>
+        <h3>學術研究追蹤</h3>
+        <p>自動追蹤特定領域最新論文，維護「研究現況 wiki」，隨時告知最前沿進展。</p>
+      </div>
+    </div>
+
+    <!-- robot / agent -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:1rem;">
+      <div style="flex-shrink:0;">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="25" fill="#3a2a00" stroke="#f6c860" stroke-width="1.5"/>
+          <!-- robot head -->
+          <rect x="16" y="16" width="20" height="16" rx="4" fill="#1a2234" stroke="#f6c860" stroke-width="1.5"/>
+          <circle cx="21" cy="23" r="3" fill="#f6c860" opacity="0.8"/>
+          <circle cx="31" cy="23" r="3" fill="#f6c860" opacity="0.8"/>
+          <line x1="21" y1="29" x2="31" y2="29" stroke="#f6c860" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+          <!-- antenna -->
+          <line x1="26" y1="16" x2="26" y2="10" stroke="#f6c860" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="26" cy="9" r="2" fill="#f6c860"/>
+          <!-- body -->
+          <rect x="20" y="32" width="12" height="8" rx="2" fill="#1a2234" stroke="#f6c860" stroke-width="1"/>
+          <!-- memory symbol -->
+          <line x1="33" y1="35" x2="38" y2="35" stroke="#f6c860" stroke-width="1" opacity="0.5"/>
+          <line x1="14" y1="35" x2="19" y2="35" stroke="#f6c860" stroke-width="1" opacity="0.5"/>
+        </svg>
+      </div>
+      <div>
+        <h3>AI Agent 記憶層</h3>
+        <p>作為 Agent 的長期記憶後端，每次行動後更新 wiki，下次執行有連貫上下文。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight teal" style="margin-top:0.9rem; max-width:820px;">
+    <strong>Karpathy 本人的用法：</strong>用 LLM Wiki 管理自己的技術知識，涵蓋 ML 論文摘要、工具評比、程式設計心得。
+  </div>
+</section>
+
+<!-- ⑩ Gist highlights -->
+<section class="slide left-align">
+  <span class="tag">Original Gist</span>
+  <h2>Karpathy Gist 亮點</h2>
+  <div class="divider"></div>
+
+  <!-- GitHub-style card -->
+  <div style="background:#0d1117; border:1px solid #30363d; border-radius:12px; padding:1rem 1.4rem; max-width:820px; width:100%; margin-bottom:0.9rem;">
+    <div style="display:flex; align-items:center; gap:0.8rem; margin-bottom:0.8rem;">
+      <!-- GitHub Octocat-ish icon -->
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="15" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+        <path d="M16 6 C10.5 6 6 10.5 6 16 C6 20.4 8.7 24.1 12.5 25.4 C13 25.5 13.2 25.2 13.2 24.9 L13.2 23.3 C10.5 23.9 9.9 22 9.9 22 C9.5 21 8.8 20.7 8.8 20.7 C7.8 20.1 8.9 20.1 8.9 20.1 C10 20.2 10.6 21.3 10.6 21.3 C11.6 23 13.2 22.5 13.8 22.2 C13.9 21.5 14.2 21 14.5 20.7 C12 20.4 9.4 19.4 9.4 15.2 C9.4 14 9.8 13 10.5 12.2 C10.4 12 10 10.8 10.6 9.3 C10.6 9.3 11.5 9 13.1 10.2 C13.9 9.97 14.9 9.86 15.9 9.86 C16.9 9.86 17.9 9.97 18.7 10.2 C20.3 9 21.2 9.3 21.2 9.3 C21.8 10.8 21.4 12 21.3 12.2 C22 13 22.4 14 22.4 15.2 C22.4 19.5 19.8 20.4 17.3 20.7 C17.7 21.1 18.1 21.9 18.1 23.1 L18.1 24.9 C18.1 25.2 18.3 25.5 18.8 25.4 C22.5 24.1 25.1 20.4 25.1 16 C25.1 10.5 20.5 6 16 6Z" fill="#8b949e"/>
+      </svg>
+      <div>
+        <div style="font-size:0.85rem; font-weight:700; color:#c9d1d9;">andrej / llm-wiki.md</div>
+        <div style="font-size:0.75rem; color:#8b949e;">Gist · 442a6bf · 2026-04-04</div>
+      </div>
+    </div>
+
+    <div class="badge-row" style="margin-bottom:0.8rem;">
+      <span class="badge blue">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#4a9eff" stroke-width="1"/><path d="M4 6 L5.5 7.5 L8 4.5" stroke="#4a9eff" stroke-width="1.2" stroke-linecap="round"/></svg>
+        複利知識
+      </span>
+      <span class="badge teal">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="8" rx="1.5" stroke="#3dd6ac" stroke-width="1"/><line x1="3" y1="5" x2="9" y2="5" stroke="#3dd6ac" stroke-width="1"/><line x1="3" y1="7.5" x2="7" y2="7.5" stroke="#3dd6ac" stroke-width="1"/></svg>
+        增量更新
+      </span>
+      <span class="badge amber">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polygon points="6,1 7.5,4.5 11,5 8.5,7.5 9,11 6,9.5 3,11 3.5,7.5 1,5 4.5,4.5" stroke="#f6c860" stroke-width="1" fill="none"/></svg>
+        Schema-first
+      </span>
+      <span class="badge">Human-readable</span>
+      <span class="badge purple">LLM as Editor</span>
+      <span class="badge">開放延伸</span>
+    </div>
+
+    <div style="font-size:0.8rem; color:#8b949e; line-height:1.7; padding-top:0.5rem; border-top:1px solid #30363d;">
+      <div style="margin-bottom:0.3rem;"><span style="color:#79c0ff;">→</span> <strong style="color:#c9d1d9;">「Compounding knowledge」：</strong>知識應像複利一樣滾動，不是線性堆疊</div>
+      <div style="margin-bottom:0.3rem;"><span style="color:#79c0ff;">→</span> <strong style="color:#c9d1d9;">增量更新（incremental update）：</strong>每次只改動有變化的部分，保留過去積累</div>
+      <div style="margin-bottom:0.3rem;"><span style="color:#79c0ff;">→</span> <strong style="color:#c9d1d9;">Schema-first 設計：</strong>先定義結構，再餵資料，確保知識有序生長</div>
+      <div style="margin-bottom:0.3rem;"><span style="color:#79c0ff;">→</span> <strong style="color:#c9d1d9;">Human-readable 優先：</strong>純 Markdown，人可直接讀、直接編輯</div>
+      <div><span style="color:#79c0ff;">→</span> <strong style="color:#c9d1d9;">LLM as editor：</strong>LLM 扮演維基編輯，智慧決定更新哪裡、如何整合</div>
+    </div>
+  </div>
+
+  <div class="highlight" style="max-width:820px;">
+    這個 Gist 本身就是一份「LLM Wiki 的 Wiki」——用清晰的 Markdown 結構示範了他所提倡的方式。
+  </div>
+</section>
+
+<!-- ⑪ Future -->
+<section class="slide slide-amber">
+  <span class="tag amber">Future</span>
+  <h2>未來展望</h2>
+  <div class="divider" style="background:linear-gradient(90deg,var(--amber),transparent);"></div>
+
+  <div class="grid2" style="max-width:820px;">
+
+    <!-- pipeline -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:0.9rem;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="flex-shrink:0;">
+        <rect x="2" y="2" width="44" height="44" rx="10" fill="#3a2a00" stroke="#f6c860" stroke-width="1.5"/>
+        <!-- pipe segments -->
+        <rect x="8"  y="18" width="10" height="12" rx="3" fill="#1a2234" stroke="#f6c860" stroke-width="1"/>
+        <rect x="20" y="14" width="10" height="20" rx="3" fill="#1a2234" stroke="#f6c860" stroke-width="1"/>
+        <rect x="32" y="10" width="10" height="28" rx="3" fill="#1a2234" stroke="#f6c860" stroke-width="1"/>
+        <line x1="18" y1="24" x2="20" y2="24" stroke="#f6c860" stroke-width="1.5"/>
+        <line x1="30" y1="24" x2="32" y2="24" stroke="#f6c860" stroke-width="1.5"/>
+        <!-- RSS dot -->
+        <circle cx="10" cy="10" r="3" fill="#f6c860" opacity="0.8"/>
+      </svg>
+      <div>
+        <h3>自動化 Pipeline</h3>
+        <p>訂閱 RSS、arXiv、GitHub 等資訊流，自動定期更新個人 wiki，真正「知識自動工作」。</p>
+      </div>
+    </div>
+
+    <!-- multi-robot -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:0.9rem;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="flex-shrink:0;">
+        <rect x="2" y="2" width="44" height="44" rx="10" fill="#0e1a2e" stroke="#4a9eff" stroke-width="1.5"/>
+        <!-- 3 small robots -->
+        <rect x="6"  y="22" width="10" height="10" rx="2" fill="#1e3a5f" stroke="#4a9eff" stroke-width="1"/>
+        <rect x="19" y="16" width="10" height="10" rx="2" fill="#1e3a5f" stroke="#4a9eff" stroke-width="1.3"/>
+        <rect x="32" y="22" width="10" height="10" rx="2" fill="#1e3a5f" stroke="#4a9eff" stroke-width="1"/>
+        <!-- robot eyes -->
+        <circle cx="9"  cy="26" r="1.2" fill="#4a9eff"/>
+        <circle cx="13" cy="26" r="1.2" fill="#4a9eff"/>
+        <circle cx="22" cy="20" r="1.2" fill="#4a9eff"/>
+        <circle cx="26" cy="20" r="1.2" fill="#4a9eff"/>
+        <circle cx="35" cy="26" r="1.2" fill="#4a9eff"/>
+        <circle cx="39" cy="26" r="1.2" fill="#4a9eff"/>
+        <!-- arrows to center -->
+        <line x1="16" y1="30" x2="22" y2="33" stroke="#3dd6ac" stroke-width="1" opacity="0.7"/>
+        <line x1="32" y1="30" x2="26" y2="33" stroke="#3dd6ac" stroke-width="1" opacity="0.7"/>
+        <rect x="19" y="33" width="10" height="9" rx="2" fill="#0e3028" stroke="#3dd6ac" stroke-width="1"/>
+        <text x="24" y="40" text-anchor="middle" font-size="6" fill="#3dd6ac" font-weight="700">MAIN</text>
+      </svg>
+      <div>
+        <h3>Multi-agent 協作</h3>
+        <p>多個 Agent 分工維護 wiki 不同章節，由主 Agent 整合，形成大規模協同知識庫。</p>
+      </div>
+    </div>
+
+    <!-- team / shared -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:0.9rem;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="flex-shrink:0;">
+        <rect x="2" y="2" width="44" height="44" rx="10" fill="#0e3028" stroke="#3dd6ac" stroke-width="1.5"/>
+        <!-- 3 people silhouettes -->
+        <circle cx="12" cy="18" r="5" fill="#1a2234" stroke="#3dd6ac" stroke-width="1"/>
+        <path d="M5 32 Q5 26 12 26 Q19 26 19 32" fill="#1a2234" stroke="#3dd6ac" stroke-width="1"/>
+        <circle cx="24" cy="15" r="6" fill="#1a2234" stroke="#3dd6ac" stroke-width="1.3"/>
+        <path d="M16 32 Q16 25 24 25 Q32 25 32 32" fill="#1a2234" stroke="#3dd6ac" stroke-width="1.3"/>
+        <circle cx="36" cy="18" r="5" fill="#1a2234" stroke="#3dd6ac" stroke-width="1"/>
+        <path d="M29 32 Q29 26 36 26 Q43 26 43 32" fill="#1a2234" stroke="#3dd6ac" stroke-width="1"/>
+        <!-- git branch icon -->
+        <circle cx="36" cy="38" r="3" fill="#3dd6ac" opacity="0.7"/>
+        <circle cx="42" cy="38" r="2" fill="#3dd6ac" opacity="0.5"/>
+        <line x1="38" y1="38" x2="40" y2="38" stroke="#3dd6ac" stroke-width="1"/>
+      </svg>
+      <div>
+        <h3>團隊共享 Wiki</h3>
+        <p>Git 版本控制 + PR review 流程，讓整個團隊共同維護有歷史紀錄的知識庫。</p>
+      </div>
+    </div>
+
+    <!-- bidirectional arrows (RAG + Wiki) -->
+    <div class="card" style="display:flex; align-items:flex-start; gap:0.9rem;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="flex-shrink:0;">
+        <rect x="2" y="2" width="44" height="44" rx="10" fill="#1a0f1a" stroke="#a78bfa" stroke-width="1.5"/>
+        <!-- RAG box -->
+        <rect x="6"  y="16" width="14" height="16" rx="3" fill="#1a1014" stroke="#ff6b6b" stroke-width="1"/>
+        <text x="13" y="27" text-anchor="middle" font-size="7" fill="#ff6b6b" font-weight="700">RAG</text>
+        <!-- Wiki box -->
+        <rect x="28" y="16" width="14" height="16" rx="3" fill="#0e1a2e" stroke="#4a9eff" stroke-width="1"/>
+        <text x="35" y="27" text-anchor="middle" font-size="7" fill="#4a9eff" font-weight="700">Wiki</text>
+        <!-- bidirectional arrow -->
+        <line x1="20" y1="22" x2="28" y2="22" stroke="#a78bfa" stroke-width="1.5"/>
+        <line x1="28" y1="30" x2="20" y2="30" stroke="#a78bfa" stroke-width="1.5"/>
+        <polygon points="26,19 29,22 26,25" fill="#a78bfa"/>
+        <polygon points="22,27 19,30 22,33" fill="#a78bfa"/>
+        <text x="24" y="44" text-anchor="middle" font-size="6.5" fill="#a78bfa" opacity="0.7">分工協作</text>
+      </svg>
+      <div>
+        <h3>與 RAG 互補</h3>
+        <p>LLM Wiki 負責結構化核心知識；RAG 處理即時、大量原始文件查詢，兩者分工協作。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight amber" style="margin-top:0.9rem; max-width:820px;">
+    <strong>終極目標：</strong>打造「會學習的知識庫」——比任何個人記憶都更完整、更有條理，且永遠在線。
+  </div>
+</section>
+
+<!-- ⑫ Closing -->
+<section class="slide slide-cover">
+  <span class="tag teal">Key Takeaways</span>
+  <h2>三個帶走的觀念</h2>
+  <div class="divider" style="background:linear-gradient(90deg,var(--teal),transparent);"></div>
+
+  <div class="closing-row">
+
+    <!-- circle 1: growth chart -->
+    <div class="closing-item">
+      <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="48" fill="#0e3028" stroke="#3dd6ac" stroke-width="2"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#3dd6ac" stroke-width="0.8" stroke-opacity="0.25"/>
+        <!-- bar chart growing -->
+        <rect x="22" y="62" width="10" height="20" rx="2" fill="#3dd6ac" opacity="0.5"/>
+        <rect x="36" y="50" width="10" height="32" rx="2" fill="#3dd6ac" opacity="0.7"/>
+        <rect x="50" y="38" width="10" height="44" rx="2" fill="#3dd6ac" opacity="0.85"/>
+        <rect x="64" y="24" width="10" height="58" rx="2" fill="#3dd6ac"/>
+        <!-- trend arrow -->
+        <path d="M24 65 L38 52 L52 40 L66 26" stroke="#f6c860" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <circle cx="66" cy="26" r="3" fill="#f6c860"/>
+      </svg>
+      <strong>知識複利</strong>
+      <p>持續餵入資料，wiki 越用越強，不從零開始</p>
+    </div>
+
+    <!-- circle 2: schema/structure -->
+    <div class="closing-item">
+      <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="48" fill="#1e3a5f" stroke="#4a9eff" stroke-width="2"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#4a9eff" stroke-width="0.8" stroke-opacity="0.25"/>
+        <!-- structured document icon -->
+        <rect x="28" y="25" width="44" height="50" rx="5" fill="#0e1a2e" stroke="#4a9eff" stroke-width="1.5"/>
+        <line x1="35" y1="36" x2="65" y2="36" stroke="#4a9eff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="35" y1="44" x2="65" y2="44" stroke="#4a9eff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+        <line x1="35" y1="52" x2="55" y2="52" stroke="#4a9eff" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="35" y1="60" x2="60" y2="60" stroke="#4a9eff" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <!-- checkmark overlay -->
+        <circle cx="65" cy="65" r="11" fill="#0e3028" stroke="#3dd6ac" stroke-width="2"/>
+        <path d="M60 65 L63.5 68.5 L70 61" stroke="#3dd6ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <strong>結構優先</strong>
+      <p>Schema 定義骨架，知識有序增長，不散亂堆積</p>
+    </div>
+
+    <!-- circle 3: human + LLM -->
+    <div class="closing-item">
+      <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="48" fill="#3a2a00" stroke="#f6c860" stroke-width="2"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="#f6c860" stroke-width="0.8" stroke-opacity="0.25"/>
+        <!-- human left -->
+        <circle cx="34" cy="36" r="9" fill="#1a2234" stroke="#f6c860" stroke-width="1.5"/>
+        <path d="M20 58 Q20 47 34 47 Q48 47 48 58" fill="#1a2234" stroke="#f6c860" stroke-width="1.5"/>
+        <!-- robot right -->
+        <rect x="52" y="28" width="18" height="14" rx="3" fill="#1a2234" stroke="#f6c860" stroke-width="1.5"/>
+        <circle cx="57" cy="35" r="2.5" fill="#f6c860" opacity="0.7"/>
+        <circle cx="65" cy="35" r="2.5" fill="#f6c860" opacity="0.7"/>
+        <line x1="52" y1="28" x2="61" y2="22" stroke="#f6c860" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="61" cy="21" r="2" fill="#f6c860"/>
+        <rect x="54" y="42" width="14" height="14" rx="2" fill="#1a2234" stroke="#f6c860" stroke-width="1.2"/>
+        <!-- handshake / link -->
+        <path d="M48 52 Q50 48 52 52" stroke="#3dd6ac" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="50" cy="52" r="2" fill="#3dd6ac"/>
+        <text x="50" y="80" text-anchor="middle" font-size="8" fill="#f6c860" opacity="0.7">協作</text>
+      </svg>
+      <strong>人 + LLM 協作</strong>
+      <p>人定義方向，LLM 做整合，互補而非取代</p>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem; text-align:center;">
+    <div class="badge-row" style="justify-content:center; margin-bottom:0.8rem;">
+      <span class="badge teal">Q &amp; A</span>
+    </div>
+    <p style="font-size:0.9rem; color:var(--muted);">
+      Gist: <code style="color:var(--blue); background:var(--surface); padding:0.1rem 0.5rem; border-radius:4px; font-size:0.78rem;">442a6bf555914893e9891c11519de94f</code>
+    </p>
+  </div>
+</section>
 
 </div>
 
@@ -168,29 +1150,30 @@
 </div>
 
 <script>
-  const slides = Array.from(document.querySelectorAll('.slide'));
-  const prev = document.getElementById('prev');
-  const next = document.getElementById('next');
-  const counter = document.getElementById('counter');
+  const slides   = Array.from(document.querySelectorAll('.slide'));
+  const prev     = document.getElementById('prev');
+  const next     = document.getElementById('next');
+  const counter  = document.getElementById('counter');
   const progress = document.getElementById('progress');
-  let current = 0;
+  const slideNum = document.getElementById('slide-num');
+  let current    = 0;
 
   function go(n) {
     slides[current].classList.remove('active');
     current = Math.max(0, Math.min(n, slides.length - 1));
     slides[current].classList.add('active');
-    prev.disabled = current === 0;
-    next.disabled = current === slides.length - 1;
-    counter.textContent = `${current + 1} / ${slides.length}`;
+    prev.disabled        = current === 0;
+    next.disabled        = current === slides.length - 1;
+    counter.textContent  = `${current + 1} / ${slides.length}`;
+    slideNum.textContent = `${current + 1} / ${slides.length}`;
     progress.style.width = `${((current + 1) / slides.length) * 100}%`;
   }
 
   prev.addEventListener('click', () => go(current - 1));
   next.addEventListener('click', () => go(current + 1));
-
   document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(current + 1);
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    go(current - 1);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ')  go(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                     go(current - 1);
   });
 
   go(0);
