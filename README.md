@@ -1,6 +1,11 @@
 # HTML Presentation
 
-純 HTML/CSS/JS 簡報專案，無外部依賴，開啟 `index.html` 即可使用。
+純 HTML/CSS/JS 簡報專案，無外部依賴，開啟 HTML 檔即可使用。
+
+## 簡報清單
+
+- `index.html` — LLM Wiki / Andrej Karpathy
+- `mdrt-reflection-presentation.html` — 堅守 MDRT，突破 COT，奔向 TOT 心得感想
 
 ## 操作方式
 
@@ -14,7 +19,8 @@
 
 ```
 HTML-presentation/
-└── index.html   # 所有投影片、樣式、邏輯
+├── index.html
+└── mdrt-reflection-presentation.html
 ```
 
 ## 新增投影片
