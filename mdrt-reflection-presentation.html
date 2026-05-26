@@ -18,6 +18,7 @@
       --gold: #c27b19;
       --gold-soft: #f6e5c5;
       --line: #d8d1c5;
+      --deck-scale: 1;
     }
 
     * { box-sizing: border-box; }
@@ -35,14 +36,21 @@
       width: 100vw;
       height: 100vh;
       position: relative;
+      overflow: hidden;
     }
 
     .slide {
       position: absolute;
-      inset: 0;
+      left: 50%;
+      top: 50%;
+      width: 1280px;
+      height: 720px;
       display: none;
       background: var(--paper);
       overflow: hidden;
+      transform: translate(-50%, -50%) scale(var(--deck-scale));
+      transform-origin: center center;
+      box-shadow: 0 18px 60px rgba(23, 32, 42, 0.12);
     }
 
     .slide.active { display: block; }
@@ -463,26 +471,26 @@
     }
 
     @media (max-width: 900px) {
-      html, body { overflow: auto; }
-      .deck { height: auto; }
-      .slide, .slide.active {
-        position: relative;
-        min-height: 100vh;
-        display: block;
+      html, body { overflow: hidden; }
+
+      .deck {
+        width: 100vw;
+        height: 100dvh;
+        min-height: 100dvh;
+        background: #ebe7dc;
       }
-      .slide:not(.active) { display: none; }
-      .text-zone, .visual-zone {
-        position: relative;
-        left: auto;
-        top: auto;
-        width: auto;
-        height: auto;
-        margin: 42px 28px;
+
+      .nav {
+        right: 12px;
+        top: 12px;
       }
-      .band { width: 120px; }
-      h1 { font-size: 42px; }
-      h2 { font-size: 36px; }
-      .visual-zone { min-height: 520px; }
+
+      button {
+        width: 38px;
+        height: 38px;
+        font-size: 20px;
+        background: rgba(255, 255, 255, 0.9);
+      }
     }
 
     @media print {
@@ -492,8 +500,11 @@
       .slide, .slide.active {
         display: block;
         position: relative;
-        width: 100vw;
-        height: 100vh;
+        left: auto;
+        top: auto;
+        width: 1280px;
+        height: 720px;
+        transform: none;
         page-break-after: always;
       }
     }
@@ -668,6 +679,10 @@
   <script>
     const slides = [...document.querySelectorAll(".slide")];
     let index = 0;
+    function updateScale() {
+      const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      document.documentElement.style.setProperty("--deck-scale", String(scale));
+    }
     function show(next) {
       index = Math.max(0, Math.min(slides.length - 1, next));
       slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
@@ -680,6 +695,9 @@
       if (event.key === "Home") show(0);
       if (event.key === "End") show(slides.length - 1);
     });
+    window.addEventListener("resize", updateScale);
+    window.addEventListener("orientationchange", updateScale);
+    updateScale();
   </script>
 </body>
 </html>
